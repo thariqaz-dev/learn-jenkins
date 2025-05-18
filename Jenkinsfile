@@ -20,7 +20,15 @@ pipeline {
         }
         stage('Test') {
             steps {
-                sh 'echo "Test Stage"'
+                sh '''
+                    echo "checking if index.html exist in the build directory..."
+                    if test -f build/index.html;then 
+                    echo "index.html file exist." 
+                    else 
+                    echo "index.html does not exist" 
+                    exit 1
+                    fi
+                '''
             }
         }
     }
