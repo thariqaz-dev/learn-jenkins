@@ -9,7 +9,6 @@ pipeline {
             steps {
                 sh '''
                     npm ci 
-                    npx playwright install --with-deps
                 '''
             }
         }
@@ -37,6 +36,7 @@ pipeline {
         stage('E2E Test') {
             steps {
                 sh '''
+                npx playwright install --with-deps
                 npx http-server dist/learn-jenkins-angular/browser -p 4200 &
                 sleep 5
                 npx playwright test
