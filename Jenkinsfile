@@ -1,9 +1,21 @@
 pipeline {
-    agent any 
+    agent {
+        docker {
+            image 'node:20-alpine'
+        }
+    } 
     stages {
-        stage('Test') {
+        stage('Install') {
             steps {
-                echo 'Test Successfull'
+                sh 'npm ci'
+            }
+        }
+        stage('Build') {
+            steps {
+                sh '''
+                    echo "Build Processing"
+                    npm run build 
+                '''
             }
         }
     }
