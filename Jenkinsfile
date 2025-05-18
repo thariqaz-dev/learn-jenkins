@@ -24,7 +24,7 @@ pipeline {
                     echo "checking if index.html exist in the build directory..."
                     if test -f dist/learn-jenkins-angular/browser/index.html;then 
                     echo "index.html file exist." 
-                    npm run test
+                    npm test
                     else 
                     echo "index.html does not exist" 
                     exit 1
