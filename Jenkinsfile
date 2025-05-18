@@ -22,7 +22,7 @@ pipeline {
             steps {
                 sh '''
                     echo "checking if index.html exist in the build directory..."
-                    if test -f build/index.html;then 
+                    if test -f dist/learn-jenkins-angular/browser/index.html;then 
                     echo "index.html file exist." 
                     else 
                     echo "index.html does not exist" 
