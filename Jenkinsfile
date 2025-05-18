@@ -1,13 +1,16 @@
 pipeline {
     agent {
         docker {
-            image 'node:20-alpine'
+            image 'node:20-bullseye'
         }
     } 
     stages {
         stage('Install') {
             steps {
-                sh 'npm ci'
+                sh '''
+                    npm ci 
+                    npx playwright install --with-deps
+                '''
             }
         }
         stage('Build') {
@@ -32,16 +35,11 @@ pipeline {
             }
         }
         stage('E2E Test') {
-            agent {
-                docker {
-                    image 'mcr.microsoft.com/playwright:v1.50.0-noble'
-                    reuseNode true
-                }
-            }
             steps {
                 sh '''
-                sleep 10 
-                npx playwright test 
+                npx http-server dist/learn-jenkins-angular/browser -p 4200 &
+                sleep 5
+                npx playwright test
                 '''
             }
         }
