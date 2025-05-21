@@ -2,6 +2,7 @@ pipeline {
     agent {
         docker {
             image 'node:20-bullseye'
+            reuseNode true
         }
     } 
 
@@ -18,7 +19,7 @@ pipeline {
         }
         stage('Lint') {
             steps {
-                sh 'npm run lint'
+                sh 'ng lint'
             }
         }
         stage('Build') {
