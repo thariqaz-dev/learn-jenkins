@@ -34,12 +34,15 @@ pipeline {
                 }
                 stage('E2E Test') {
                     steps {
+                        
+                        def serverPid = sh(script: 'npx http-server dist/learn-jenkins-angular/browser -p 4201 & echo $!', returnStdout: true).trim()
+
                         sh '''
-                            def serverPid = sh(script: "npx http-server dist/learn-jenkins-angular/browser -p 4201 & echo $!", returnStdout: true).trim()
                             npx playwright install --with-dep
                             npx playwright test 
-                            kill ${serverPid}
                         '''
+
+                        sh 'kill ${serverPid}'
                     }
                     
                 }
