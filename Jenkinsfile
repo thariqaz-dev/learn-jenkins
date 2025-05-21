@@ -13,17 +13,17 @@ pipeline {
     stages {
         stage('Install') {
             steps {
-                sh '''
-                    npm ci 
-                '''
+                sh 'npm ci'
+            }
+        }
+        stage('Lint') {
+            steps {
+                sh 'npm run lint'
             }
         }
         stage('Build') {
             steps {
-                sh '''
-                    echo "Build Processing"
-                    npm run build 
-                '''
+                sh 'ng build --configuration=production'
             }
         }
         stage('Test') {
@@ -32,12 +32,17 @@ pipeline {
                     echo "checking if index.html exist in the build directory..."
                     if test -f dist/learn-jenkins-angular/browser/index.html;then 
                     echo "index.html file exist." 
-                    npm run test -- --watch=false --browsers=ChromeHeadless
+                    ng test -- --watch=false --browsers=ChromeHeadless
                     else 
                     echo "index.html does not exist" 
                     exit 1
                     fi
                 '''
+            }
+        }
+        stage("success") {
+            steps {
+                echo "deployed"
             }
         }
         // stage('E2E Test') {
@@ -54,10 +59,10 @@ pipeline {
 
     post {
         success {
-        echo 'Deployment completed successfully.'
+            echo 'Deployment completed successfully.'
         }
         failure {
-        echo 'Build or deployment failed!'
+            echo 'Build or deployment failed!'
         }
-  }
+    }
 }
