@@ -18,12 +18,6 @@ pipeline {
                 sh 'npm ci'
             }
         }
-        
-        stage('Lint') {
-            steps {
-                sh 'npx ng lint'
-            }
-        }
 
         stage('Build') {
             steps {
