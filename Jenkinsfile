@@ -31,7 +31,7 @@ pipeline {
             parallel {
                 stage('Unit Test') {
                     steps {
-                        sh 'npm test'
+                        sh 'npm run test'
                     }
                 }
                 stage('E2E Test') {
@@ -46,7 +46,7 @@ pipeline {
                             // def serverPid = sh(script: 'npx http-server dist/learn-jenkins-angular/browser -p 4201 & echo $!', returnStdout: true).trim()
 
                             sh '''
-                               echo "To be implement"
+                               npx playwright test
                             '''
 
                             //sh 'kill ${serverPid}'
@@ -68,9 +68,8 @@ pipeline {
                     node --version
                     npm install netlify-cli
                     node_modules/.bin/netlify --version
-                    echo "Deploying to production. Site ID: $NETLIFY_SITE_ID"
+                    echo "Deploying to production."
                     node_modules/.bin/netlify status
-                     deploy --dir=build --prod
                     node_modules/.bin/netlify deploy --prod --dir=dist/learn-jenkins-angular/browser --site=$NETLIFY_SITE_ID --auth=$NETLIFY_AUTH_TOKEN
                 """
             }
@@ -78,6 +77,9 @@ pipeline {
     }
 
     post {
+        always {
+            echo 'Pipeline Finished'
+        }
         success {
             echo 'Deployment completed successfully.'
         }
