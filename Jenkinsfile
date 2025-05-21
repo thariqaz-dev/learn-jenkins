@@ -34,15 +34,20 @@ pipeline {
         stage('Test') {
             parallel {
                 stage('Unit Test') {
-                    sh 'npx ng test --watch=false --browsers=ChromeHeadless'
+                    steps {
+                        sh 'npx ng test --watch=false --browsers=ChromeHeadless'
+                    }
                 }
                 stage('E2E Test') {
-                    sh '''
-                        def serverPid = sh(script: 'npx http-server dist/your-app-name -p 4201 & echo $!', returnStdout: true).trim()
-                        npx playwright install --with-dep
-                        npx playwright test 
-                        kill ${serverPid}
-                    '''
+                    steps {
+                        sh '''
+                            def serverPid = sh(script: 'npx http-server dist/your-app-name -p 4201 & echo $!', returnStdout: true).trim()
+                            npx playwright install --with-dep
+                            npx playwright test 
+                            kill ${serverPid}
+                        '''
+                    }
+                    
                 }
             }
         }
