@@ -19,12 +19,12 @@ pipeline {
         }
         stage('Lint') {
             steps {
-                sh 'ng lint'
+                sh 'npx ng lint'
             }
         }
         stage('Build') {
             steps {
-                sh 'ng build --configuration=production'
+                sh 'npx ng build --configuration=production'
             }
         }
         stage('Test') {
@@ -33,7 +33,7 @@ pipeline {
                     echo "checking if index.html exist in the build directory..."
                     if test -f dist/learn-jenkins-angular/browser/index.html;then 
                     echo "index.html file exist." 
-                    ng test -- --watch=false --browsers=ChromeHeadless
+                        npx ng test -- --watch=false --browsers=ChromeHeadless
                     else 
                     echo "index.html does not exist" 
                     exit 1
