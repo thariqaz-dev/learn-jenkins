@@ -31,7 +31,7 @@ pipeline {
             parallel {
                 stage('Unit Test') {
                     steps {
-                        sh 'npx ng test --watch=false --browsers=ChromeHeadless'
+                        sh 'npx ng test --watch=false'
                     }
                 }
                 stage('E2E Test') {
