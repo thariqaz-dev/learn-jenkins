@@ -31,7 +31,7 @@ pipeline {
             parallel {
                 stage('Unit Test') {
                     steps {
-                        sh 'npm run test'
+                        sh 'npm test'
                     }
                 }
                 stage('E2E Test') {
