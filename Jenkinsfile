@@ -12,45 +12,40 @@ pipeline {
     }
     
     stages {
-        stage('Install') {
+        
+        stage('Setup') {
             steps {
                 sh 'npm ci'
             }
         }
+        
+        stage('Lint') {
+            steps {
+                sh 'npx ng lint'
+            }
+        }
+
         stage('Build') {
             steps {
                 sh 'npx ng build --configuration=production'
             }
         }
+        
         stage('Test') {
-            steps {
-                sh '''
-                    echo "checking if index.html exist in the build directory..."
-                    if test -f dist/learn-jenkins-angular/browser/index.html;then 
-                    echo "index.html file exist." 
-                        npx ng test -- --watch=false --browsers=ChromeHeadless
-                    else 
-                    echo "index.html does not exist" 
-                    exit 1
-                    fi
-                '''
+            parallel {
+                stage('Unit Test') {
+                    sh 'npx ng test --watch=false --browsers=ChromeHeadless'
+                }
+                stage('E2E Test') {
+                    sh '''
+                        def serverPid = sh(script: 'npx http-server dist/your-app-name -p 4201 & echo $!', returnStdout: true).trim()
+                        npx playwright install --with-dep
+                        npx playwright test 
+                        kill ${serverPid}
+                    '''
+                }
             }
         }
-        stage("success") {
-            steps {
-                echo "deployed"
-            }
-        }
-        // stage('E2E Test') {
-        //     steps {
-        //         sh '''
-        //         npx playwright install --with-deps
-        //         npx http-server dist/learn-jenkins-angular/browser -p 4200 &
-        //         sleep 5
-        //         npx playwright test
-        //         '''
-        //     }
-        // }
     }
 
     post {
