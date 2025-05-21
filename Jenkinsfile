@@ -31,7 +31,7 @@ pipeline {
             parallel {
                 stage('Unit Test') {
                     steps {
-                        sh 'npx ng test --watch=false'
+                        sh 'npm run test'
                     }
                 }
                 stage('E2E Test') {
