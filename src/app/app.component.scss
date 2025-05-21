@@ -1,0 +1,36 @@
+.home-container {
+  text-align: center;
+  margin-top: 50px;
+  font-family: Arial, sans-serif;
+ 
+}
+
+.jenkins-logo {
+  width: 150px;
+  height: auto;
+  margin-bottom: 20px;
+}
+
+h1 {
+  font-size: 2em;
+  color: #fff;
+}
+
+p {
+  font-size: 1.2em;
+  color: #666;
+}
+
+.animated-logo:hover {
+  animation: spin 5s backwards normal;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}

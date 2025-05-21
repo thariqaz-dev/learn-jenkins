@@ -15,7 +15,10 @@ pipeline {
         
         stage('Setup') {
             steps {
-                sh 'npm ci'
+                sh '''
+                    npm ci
+                    npx playwright install --with-deps
+                '''
             }
         }
 
@@ -33,12 +36,12 @@ pipeline {
                     }
                 }
                 stage('E2E Test') {
-                    agent {
-                        docker {
-                            image 'mcr.microsoft.com/playwright:v1.52.0-jammy'
-                            reuseNode true
-                        }
-                    }
+                    // agent {
+                    //     docker {
+                    //         image 'mcr.microsoft.com/playwright:v1.52.0-jammy'
+                    //         reuseNode true
+                    //     }
+                    // }
                     steps {
                         script {
                             def serverPid = sh(script: 'npx http-server dist/learn-jenkins-angular/browser -p 4201 & echo $!', returnStdout: true).trim()
