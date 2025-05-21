@@ -43,17 +43,30 @@ pipeline {
                     // }
                     steps {
                         script {
-                            def serverPid = sh(script: 'npx http-server dist/learn-jenkins-angular/browser -p 4201 & echo $!', returnStdout: true).trim()
+                            // def serverPid = sh(script: 'npx http-server dist/learn-jenkins-angular/browser -p 4201 & echo $!', returnStdout: true).trim()
 
                             sh '''
-                                npx playwright install 
-                                npx playwright test 
+                               echo "To be implement"
                             '''
 
-                            sh 'kill ${serverPid}'
+                            //sh 'kill ${serverPid}'
                         } 
                     }
                 }
+            }
+        }
+
+        stage('Approval for Production') {
+            steps {
+                input message: 'Approve production deployment ?', ok: 'Yes, deploy'
+            }
+        }
+
+        stage('Deploy to Production') {
+            steps {
+                sh """
+                    npx netlify deploy --prod --dir=dist/learn-jenkins-angular/browser --site=$NETLIFY_SITE_ID --auth=$NETLIFY_AUTH_TOKEN
+                """
             }
         }
     }
