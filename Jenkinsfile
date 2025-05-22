@@ -18,7 +18,6 @@ pipeline {
             steps {
                 sh '''
                     npm ci 
-                    npx playwright install-deps
                 '''
             }
         }
