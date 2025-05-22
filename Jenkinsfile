@@ -7,8 +7,6 @@ pipeline {
     }
 
     environment {
-        NETLIFY_SITE_ID = credentials('netlify-site-id')
-        NETLIFY_AUTH_TOKEN = credentials('netlify-token')
         NPM_CONFIG_CACHE = "${WORKSPACE}/.npm"
     }
 
@@ -36,7 +34,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Build') {
             steps {
                 sh 'npx ng build --configuration=production'
@@ -85,11 +83,16 @@ pipeline {
 
         stage('Deploy to Production') {
             steps {
-                sh """
-                    npx netlify --version
-                    npx netlify status
-                    npx netlify deploy --prod --dir=dist/learn-jenkins-angular/browser --site=$NETLIFY_SITE_ID --auth=$NETLIFY_AUTH_TOKEN
-                """
+                withCredentials([
+                    string(credentialsId: 'netlify-token', variable: 'NETLIFY_AUTH_TOKEN'),
+                    string(credentialsId: 'netlify-site-id', variable: 'NETLIFY_SITE_ID')
+                ]) {
+                    sh """
+                        npx netlify --version
+                        npx netlify status
+                        npx netlify deploy --prod --dir=dist/learn-jenkins-angular/browser --site=$NETLIFY_SITE_ID --auth=$NETLIFY_AUTH_TOKEN
+                    """
+                }
             }
         }
     }
