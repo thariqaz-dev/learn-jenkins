@@ -32,16 +32,21 @@ pipeline {
             parallel {
                 stage('Unit Test') {
                     steps {
-                        sh 'npm run test'
+                        sh 'npm run test:unit'
+                    }
+                    post {
+                        always {
+                            junit 'jest-results/junit.xml'
+                        }
                     }
                 }
                 stage('E2E Test') {
-                    // agent {
-                    //     docker {
-                    //         image 'mcr.microsoft.com/playwright:v1.52.0-noble'
-                    //         reuseNode true
-                    //     }
-                    // }
+                    agent {
+                        docker {
+                            image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                            reuseNode true
+                        }
+                    }
 
                     steps {
                         sh '''
@@ -57,7 +62,34 @@ pipeline {
                             publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Local E2E', reportTitles: '', useWrapperFileDirectly: true])
                         }
                     }
+                    // steps {
+                    //     echo "To be implement"
+                    // }
                 }
+                
+                //stage('E2E Test') {
+                    // agent {
+                    //     docker {
+                    //         image 'mcr.microsoft.com/playwright:v1.52.0-noble'
+                    //         reuseNode true
+                    //     }
+                    // }
+
+                //     steps {
+                //         sh '''
+                //             npm install serve
+                //             node_modules/.bin/serve -s build &
+                //             sleep 10
+                //             npx playwright test  --reporter=html
+                //         '''
+                //     }
+
+                //     post {
+                //         always {
+                //             publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Local E2E', reportTitles: '', useWrapperFileDirectly: true])
+                //         }
+                //     }
+                // }
             }
         }
 

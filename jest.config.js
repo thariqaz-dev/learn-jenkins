@@ -17,5 +17,19 @@ module.exports = {
   moduleDirectories: ['node_modules', 'src'],
   fakeTimers: {
     enableGlobally: true,
-  }
+  },
+  reporters: [
+    'default',
+    ['jest-junit', {
+      suiteName: "jest tests",
+      outputDirectory: "jest-results",
+      outputName: "junit.xml",
+      uniqueOutputName: "false",
+      classNameTemplate: "{classname}-{title}",
+      titleTemplate: "{classname}-{title}",
+      ancestorSeparator: " › ",
+      usePathForSuiteName: "true"
+    }]
+  ]
 };
+      
