@@ -43,10 +43,7 @@ pipeline {
                     }
 
                     steps {
-                        sh '''
-                            
-                            npx playwright test  --reporter=html
-                        '''
+                        sh 'npx playwright test  --reporter=html'
                     }
 
                     post {
