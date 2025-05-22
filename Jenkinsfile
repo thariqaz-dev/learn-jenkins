@@ -1,5 +1,10 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'node:20-bullseye'
+            reuseNode true
+        }
+    } 
 
     environment {
         NETLIFY_SITE_ID = '6a9d3807-9a19-448b-a060-07893178bd68'
@@ -9,12 +14,6 @@ pipeline {
     stages {
         
         stage('Setup') {
-            agent {
-                docker {
-                    image 'node:20-bullseye'
-                    reuseNode true
-                }
-            } 
             steps {
                 sh '''
                     npm ci 
@@ -23,12 +22,6 @@ pipeline {
         }
 
         stage('Build') {
-            agent {
-                docker {
-                    image 'node:20-bullseye'
-                    reuseNode true
-                }
-            } 
             steps {
                 sh 'npx ng build --configuration=production'
             }
@@ -37,29 +30,22 @@ pipeline {
         stage('Test') {
             parallel {
                 stage('Unit Test') {
-                    agent {
-                        docker {
-                            image 'node:20-bullseye'
-                            reuseNode true
-                        }
-                    } 
                     steps {
                         sh 'npm run test'
                     }
                 }
                 stage('E2E Test') {
-                    agent { docker { image 'mcr.microsoft.com/playwright:v1.52.0-noble' } }
-
                     steps {
                         sh 'npm ci'
+                        sh 'npx playwright install --with-deps'
                         sh 'npx playwright test'
-                    }
+                    
 
-                    // post {
-                    //     always {
-                    //         publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright HTML Report', reportTitles: '', useWrapperFileDirectly: true])
-                    //     }
-                    // }
+                    post {
+                        always {
+                            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright HTML Report', reportTitles: '', useWrapperFileDirectly: true])
+                        }
+                    }
                 }
             }
         }
@@ -71,12 +57,6 @@ pipeline {
         }
 
         stage('Deploy to Production') {
-            agent {
-                docker {
-                    image 'node:20-bullseye'
-                    reuseNode true
-                }
-            } 
             steps {
                 sh """
                     node --version
