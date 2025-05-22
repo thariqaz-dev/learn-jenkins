@@ -16,7 +16,7 @@ pipeline {
     
     stages {
 
-        stage('Setup and Cache') {
+        stage('Setup & Cache') {
             steps {
                 script {
                     try {
