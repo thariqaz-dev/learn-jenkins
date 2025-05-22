@@ -21,12 +21,18 @@ pipeline {
         stage('Cache Restore') {
             steps {
                 script {
-                    if (fileExists('node_modules/.cache_flag')) {
-                        echo 'Restoring node_modules from previous build...'
+                    try {
                         unstash 'node_modules'
-                    } else {
-                        echo 'No cached node_modules found.'
+                        echo '✅ node_modules restored from previous stash.'
+                    } catch (err) {
+                        echo '⚠️ No cached node_modules found (probably first build).'
                     }
+                    // if (fileExists('node_modules/.cache_flag')) {
+                    //     echo 'Restoring node_modules from previous build...'
+                    //     unstash 'node_modules'
+                    // } else {
+                    //     echo 'No cached node_modules found.'
+                    // }
                 }
             }
         }
