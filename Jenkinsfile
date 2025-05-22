@@ -1,50 +1,48 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'node:20-bookworm'
+            reuseNode true
+        }
+    } 
 
     environment {
-        NETLIFY_SITE_ID = '6a9d3807-9a19-448b-a060-07893178bd68'
+        NETLIFY_SITE_ID = credentials('netlify-site-id')
         NETLIFY_AUTH_TOKEN = credentials('netlify-token')
+        NPM_CONFIG_CACHE = "${WORKSPACE}/.npm"
+    }
+
+    options {
+        skipDefaultCheckout true
     }
     
     stages {
-        
-        stage('Setup') {
-            agent {
-                docker {
-                    image 'node:20-bookworm'
-                    reuseNode true
-                }
-            } 
+
+        stage('Checkout & Cache') {
             steps {
-                sh '''
-                    npm ci 
-                '''
+                checkout scm
+                cache(path: './node_modules', key: 'node-modules-${env.BUILD_ID}', restoreKeys: ['node-modules'])
+            }
+        }
+
+        stage('Setup') {
+            steps {
+                sh 'npm ci'
             }
         }
 
         stage('Build') {
-            agent {
-                docker {
-                    image 'node:20-bookworm'
-                    reuseNode true
-                }
-            } 
             steps {
                 sh 'npx ng build --configuration=production'
             }
         }
         
         stage('Test') {
-            parallel {
-                stage('Unit Test') {
-                    agent {
-                        docker {
-                            image 'node:20-bookworm'
-                            reuseNode true
-                        }
-                    } 
+            parallel failFast:true, stages: {
+                
+                stage('Unit Test (JEST)') {
                     steps {
-                        sh 'npm run test:unit'
+                        sh 'npx ng test:unit'
                     }
                     post {
                         always {
@@ -52,7 +50,8 @@ pipeline {
                         }
                     }
                 }
-                stage('E2E Test') {
+                
+                stage('E2E Test (PLAYWRIGHT)') {
                     agent {
                         docker {
                             image 'mcr.microsoft.com/playwright:v1.52.0-noble'
@@ -61,50 +60,24 @@ pipeline {
                     }
                     steps {
                         sh '''
-                            npm install serve
-                            node_modules/.bin/serve -s dist/learn-jenkins-angular/browser &
-                            sleep 10
+                            npx serve -s dist/learn-jenkins-angular/browser -l 3000 &
+                            npx wait-on http://localhost:3000
                             npx playwright test  --reporter=html
                         '''
                     }
-
                     post {
                         always {
-                            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Local E2E', reportTitles: '', useWrapperFileDirectly: true])
+                            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright HTML Report', reportTitles: '', useWrapperFileDirectly: true])
                         }
                     }
-                    // steps {
-                    //     echo "To be implement"
-                    // }
                 }
-                
-                //stage('E2E Test') {
-                    // agent {
-                    //     docker {
-                    //         image 'mcr.microsoft.com/playwright:v1.52.0-noble'
-                    //         reuseNode true
-                    //     }
-                    // }
-
-                //     steps {
-                //         sh '''
-                //             npm install serve
-                //             node_modules/.bin/serve -s build &
-                //             sleep 10
-                //             npx playwright test  --reporter=html
-                //         '''
-                //     }
-
-                //     post {
-                //         always {
-                //             publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Local E2E', reportTitles: '', useWrapperFileDirectly: true])
-                //         }
-                //     }
-                // }
             }
         }
 
         stage('Approval for Production') {
+            options {
+                timeout(time: 15, unit: 'MINUTES')
+            }
             steps {
                 input message: 'Approve production deployment ?', ok: 'Yes, deploy'
             }
@@ -119,12 +92,9 @@ pipeline {
             } 
             steps {
                 sh """
-                    node --version
-                    npm install netlify-cli
-                    node_modules/.bin/netlify --version
-                    echo "Deploying to production."
-                    node_modules/.bin/netlify status
-                    node_modules/.bin/netlify deploy --prod --dir=dist/learn-jenkins-angular/browser --site=$NETLIFY_SITE_ID --auth=$NETLIFY_AUTH_TOKEN
+                    npx netlify --version
+                    npx netlify status
+                    npx netlify deploy --prod --dir=dist/learn-jenkins-angular/browser --site=$NETLIFY_SITE_ID --auth=$NETLIFY_AUTH_TOKEN
                 """
             }
         }
@@ -132,13 +102,14 @@ pipeline {
 
     post {
         always {
-            echo 'Pipeline Finished'
+            echo 'Pipeline execution completed.'
         }
         success {
             echo 'Deployment completed successfully.'
+            archiveArtifacts artifacts: 'dist/learn-jenkins-angular/browser/**', fingerprint: true
         }
         failure {
-            echo 'Build or deployment failed!'
+            echo 'Build or deployment failed. Please check the logs for details.'
         }
     }
 }
