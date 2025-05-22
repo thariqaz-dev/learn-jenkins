@@ -1,10 +1,10 @@
 pipeline {
     agent {
         docker {
-            image 'node:20-bookworm'
+            image 'mcr.microsoft.com/playwright:v1.52.0-noble'
             reuseNode true
         }
-    } 
+    }
 
     environment {
         NETLIFY_SITE_ID = credentials('netlify-site-id')
@@ -65,12 +65,6 @@ pipeline {
                 }
                 
                 stage('E2E Test (PLAYWRIGHT)') {
-                    agent {
-                        docker {
-                            image 'mcr.microsoft.com/playwright:v1.52.0-noble'
-                            reuseNode true
-                        }
-                    }
                     steps {
                         sh '''
                             npx serve -s dist/learn-jenkins-angular/browser -l 3000 &
