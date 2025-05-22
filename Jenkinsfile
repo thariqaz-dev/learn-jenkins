@@ -16,7 +16,8 @@ pipeline {
         stage('Setup') {
             steps {
                 sh '''
-                    npm ci
+                    npm ci 
+                    npx playwright install
                 '''
             }
         }
