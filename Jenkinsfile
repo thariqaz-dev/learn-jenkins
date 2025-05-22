@@ -61,7 +61,7 @@ pipeline {
                 
                 stage('Unit Test (JEST)') {
                     steps {
-                        sh 'npx ng test:unit'
+                        sh 'npm run test:unit'
                     }
                     post {
                         always {
