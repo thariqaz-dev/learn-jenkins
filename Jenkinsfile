@@ -12,15 +12,14 @@ pipeline {
         NPM_CONFIG_CACHE = "${WORKSPACE}/.npm"
     }
 
-    options {
-        skipDefaultCheckout true
-    }
+    // options {
+    //     skipDefaultCheckout true
+    // }
     
     stages {
 
-        stage('Checkout & Cache') {
+        stage('Cache') {
             steps {
-                checkout scm
                 cache(path: './node_modules', key: 'node-modules-${env.BUILD_ID}', restoreKeys: ['node-modules'])
             }
         }
