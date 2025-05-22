@@ -1,10 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'node:20-bookworm'
-            reuseNode true
-        }
-    } 
+    agent any
 
     environment {
         NETLIFY_SITE_ID = '6a9d3807-9a19-448b-a060-07893178bd68'
@@ -14,6 +9,12 @@ pipeline {
     stages {
         
         stage('Setup') {
+            {
+        docker {
+            image 'node:20-bookworm'
+            reuseNode true
+        }
+    } 
             steps {
                 sh '''
                     npm ci 
@@ -23,6 +24,12 @@ pipeline {
         }
 
         stage('Build') {
+            {
+        docker {
+            image 'node:20-bookworm'
+            reuseNode true
+        }
+    } 
             steps {
                 sh 'npx ng build --configuration=production'
             }
@@ -30,6 +37,12 @@ pipeline {
         
         stage('Test') {
             parallel {
+                {
+        docker {
+            image 'node:20-bookworm'
+            reuseNode true
+        }
+    } 
                 stage('Unit Test') {
                     steps {
                         sh 'npm run test:unit'
@@ -41,12 +54,12 @@ pipeline {
                     }
                 }
                 stage('E2E Test') {
-                    // agent {
-                    //     docker {
-                    //         image 'mcr.microsoft.com/playwright:v1.52.0-noble'
-                    //         reuseNode true
-                    //     }
-                    // }
+                    agent {
+                        docker {
+                            image 'mcr.microsoft.com/playwright:v1.52.0-noble'
+                            reuseNode true
+                        }
+                    }
 
                     steps {
                         sh '''
@@ -100,6 +113,12 @@ pipeline {
         }
 
         stage('Deploy to Production') {
+            {
+        docker {
+            image 'node:20-bookworm'
+            reuseNode true
+        }
+    } 
             steps {
                 sh """
                     node --version
