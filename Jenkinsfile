@@ -38,8 +38,9 @@ pipeline {
         }
         
         stage('Test') {
-            parallel failFast:true, stages: [
-                'Unit Test (JEST)' : {
+            parallel {
+                
+                stage('Unit Test (JEST)') {
                     steps {
                         sh 'npx ng test:unit'
                     }
@@ -48,8 +49,9 @@ pipeline {
                             junit 'jest-results/junit.xml'
                         }
                     }
-                },
-                'E2E Test (PLAYWRIGHT)': {
+                }
+                
+                stage('E2E Test (PLAYWRIGHT)') {
                     agent {
                         docker {
                             image 'mcr.microsoft.com/playwright:v1.52.0-noble'
@@ -69,7 +71,7 @@ pipeline {
                         }
                     }
                 }
-            ]
+            }
         }
 
         stage('Approval for Production') {
