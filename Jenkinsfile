@@ -23,6 +23,12 @@ pipeline {
         }
 
         stage('Build') {
+            agent {
+                docker {
+                    image 'node:20-bullseye'
+                    reuseNode true
+                }
+            } 
             steps {
                 sh 'npx ng build --configuration=production'
             }
