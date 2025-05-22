@@ -16,8 +16,7 @@ pipeline {
         stage('Setup') {
             steps {
                 sh '''
-                    npm ci 
-                    npx -y playwright@1.52.0 install --with-deps
+                    npm ci
                 '''
             }
         }
