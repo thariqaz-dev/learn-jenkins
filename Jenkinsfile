@@ -17,6 +17,7 @@ pipeline {
             steps {
                 sh '''
                     npm ci 
+                    npx playwright install
                 '''
             }
         }
@@ -36,9 +37,12 @@ pipeline {
                 }
                 stage('E2E Test') {
                     steps {
-                        sh 'npm ci'
-                        sh 'npx playwright install --with-deps'
-                        sh 'npx playwright test'
+                        sh '''
+                            npm install serve
+                            node_modules/.bin/serve -s build &
+                            sleep 10
+                            npx playwright test  --reporter=html
+                        '''
                     
                     }
                     post {
