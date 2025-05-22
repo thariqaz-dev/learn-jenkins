@@ -18,15 +18,29 @@ pipeline {
     
     stages {
 
-        stage('Cache') {
+        stage('Cache Restore') {
             steps {
-                cache(path: './node_modules', key: 'node-modules-${env.BUILD_ID}', restoreKeys: ['node-modules'])
+                script {
+                    if (fileExists('node_modules/.cache_flag')) {
+                        echo 'Restoring node_modules from previous build...'
+                        unstash 'node_modules'
+                    } else {
+                        echo 'No cached node_modules found.'
+                    }
+                }
             }
         }
 
         stage('Setup') {
             steps {
                 sh 'npm ci'
+            }
+        }
+
+        stage('Cache Save') {
+            steps {
+                sh 'touch node_modules/.cache_flag'
+                stash name: 'node_modules', includes: 'node_modules/**/*'
             }
         }
 
