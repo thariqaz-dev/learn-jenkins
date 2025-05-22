@@ -18,38 +18,25 @@ pipeline {
     
     stages {
 
-        stage('Cache Restore') {
+        stage('Setup and Cache') {
             steps {
                 script {
                     try {
                         unstash 'node_modules'
-                        echo '✅ node_modules restored from previous stash.'
+                        echo 'node_modules restored from previous stash.'
                     } catch (err) {
-                        echo '⚠️ No cached node_modules found (probably first build).'
+                        echo 'No cached node_modules found (probably first build).'
                     }
-                    // if (fileExists('node_modules/.cache_flag')) {
-                    //     echo 'Restoring node_modules from previous build...'
-                    //     unstash 'node_modules'
-                    // } else {
-                    //     echo 'No cached node_modules found.'
-                    // }
+
+                    sh 'npm ci'
+
+                    sh 'touch node_modules/.cache_flag'
+                    stash name: 'node_modules', includes: 'node_modules/**/*'
+                    echo 'node_modules stashed for next build.'
                 }
             }
         }
-
-        stage('Setup') {
-            steps {
-                sh 'npm ci'
-            }
-        }
-
-        stage('Cache Save') {
-            steps {
-                sh 'touch node_modules/.cache_flag'
-                stash name: 'node_modules', includes: 'node_modules/**/*'
-            }
-        }
-
+        
         stage('Build') {
             steps {
                 sh 'npx ng build --configuration=production'
@@ -97,12 +84,6 @@ pipeline {
         }
 
         stage('Deploy to Production') {
-            agent {
-                docker {
-                    image 'node:20-bookworm'
-                    reuseNode true
-                }
-            } 
             steps {
                 sh """
                     npx netlify --version
