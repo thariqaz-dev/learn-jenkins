@@ -35,22 +35,18 @@ pipeline {
                     }
                 }
                 stage('E2E Test') {
-                    agent {
-                        docker {
-                            image 'mcr.microsoft.com/playwright:v1.52.0-noble'
-                            args '--user 1001'
-                        }
-                    }
+                    agent { docker { image 'mcr.microsoft.com/playwright:v1.52.0-noble' } }
 
                     steps {
-                        sh 'npx playwright test  --reporter=html'
+                        sh 'npm ci'
+                        sh 'npx playwright test'
                     }
 
-                    post {
-                        always {
-                            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright HTML Report', reportTitles: '', useWrapperFileDirectly: true])
-                        }
-                    }
+                    // post {
+                    //     always {
+                    //         publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright HTML Report', reportTitles: '', useWrapperFileDirectly: true])
+                    //     }
+                    // }
                 }
             }
         }
