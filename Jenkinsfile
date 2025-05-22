@@ -38,7 +38,10 @@ pipeline {
         }
         
         stage('Test') {
-            parallel failFast:true, stages: {
+            options {
+                failFast true
+            }
+            parallel {
                 
                 stage('Unit Test (JEST)') {
                     steps {
