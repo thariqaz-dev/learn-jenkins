@@ -1,10 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'node:20-bullseye'
-            reuseNode true
-        }
-    } 
+    agent any
 
     environment {
         NETLIFY_SITE_ID = '6a9d3807-9a19-448b-a060-07893178bd68'
@@ -14,6 +9,12 @@ pipeline {
     stages {
         
         stage('Setup') {
+            agent {
+                docker {
+                    image 'node:20-bullseye'
+                    reuseNode true
+                }
+            } 
             steps {
                 sh '''
                     npm ci 
@@ -30,6 +31,12 @@ pipeline {
         stage('Test') {
             parallel {
                 stage('Unit Test') {
+                    agent {
+                        docker {
+                            image 'node:20-bullseye'
+                            reuseNode true
+                        }
+                    } 
                     steps {
                         sh 'npm run test'
                     }
@@ -58,6 +65,12 @@ pipeline {
         }
 
         stage('Deploy to Production') {
+            agent {
+                docker {
+                    image 'node:20-bullseye'
+                    reuseNode true
+                }
+            } 
             steps {
                 sh """
                     node --version
