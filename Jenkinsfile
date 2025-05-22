@@ -9,12 +9,12 @@ pipeline {
     stages {
         
         stage('Setup') {
-            {
-        docker {
-            image 'node:20-bookworm'
-            reuseNode true
-        }
-    } 
+            agent {
+                docker {
+                    image 'node:20-bookworm'
+                    reuseNode true
+                }
+            } 
             steps {
                 sh '''
                     npm ci 
@@ -24,12 +24,12 @@ pipeline {
         }
 
         stage('Build') {
-            {
-        docker {
-            image 'node:20-bookworm'
-            reuseNode true
-        }
-    } 
+            agent {
+                docker {
+                    image 'node:20-bookworm'
+                    reuseNode true
+                }
+            } 
             steps {
                 sh 'npx ng build --configuration=production'
             }
@@ -37,13 +37,13 @@ pipeline {
         
         stage('Test') {
             parallel {
-                {
-        docker {
-            image 'node:20-bookworm'
-            reuseNode true
-        }
-    } 
                 stage('Unit Test') {
+                    agent {
+                        docker {
+                            image 'node:20-bookworm'
+                            reuseNode true
+                        }
+                    } 
                     steps {
                         sh 'npm run test:unit'
                     }
@@ -60,7 +60,6 @@ pipeline {
                             reuseNode true
                         }
                     }
-
                     steps {
                         sh '''
                             npm install serve
@@ -113,12 +112,12 @@ pipeline {
         }
 
         stage('Deploy to Production') {
-            {
-        docker {
-            image 'node:20-bookworm'
-            reuseNode true
-        }
-    } 
+            agent {
+                docker {
+                    image 'node:20-bookworm'
+                    reuseNode true
+                }
+            } 
             steps {
                 sh """
                     node --version
